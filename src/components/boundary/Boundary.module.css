@@ -1,0 +1,30 @@
+section.boundary {
+    width: 300px;
+}
+
+.logo404 {
+    color: #369;
+    font-size: 4em;
+    align-self: center;
+}
+
+.p {
+    color: #1a7474;
+}
+
+.button {
+    border: 1px solid #1a7474;
+    display: inline-block;
+    padding: 0.2rem 1.4rem;
+    border-radius: 0.6rem;
+    font-size: 1.5em;
+}
+
+.link {
+    text-decoration: none;
+    color: #1a7474;
+}
+
+.button:hover {
+    transform: scale(1.05);
+}

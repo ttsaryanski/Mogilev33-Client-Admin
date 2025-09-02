@@ -1,0 +1,23 @@
+.error {
+    margin: 0 auto;
+    align-self: center;
+    max-width: fit-content;
+    padding: 1rem 2rem;
+    border: 1px solid #1a7474;
+    border-radius: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+.error p {
+    color: red;
+}
+
+.button {
+    padding: 0.1rem 0.5rem;
+    background-color: #1a7474;
+    color: #fff;
+    border-radius: 0.3rem;
+    font-size: 0.8em;
+    display: block;
+    margin: 0 auto;
+}
