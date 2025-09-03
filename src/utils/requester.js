@@ -8,7 +8,7 @@ export function setAccessToken(token) {
 }
 
 async function requester(method, url, data, signal) {
-    // await loadCsrfToken();
+    await loadCsrfToken();
 
     if (accessToken) {
         option.headers["Authorization"] = `Bearer ${accessToken}`;
@@ -21,9 +21,9 @@ async function requester(method, url, data, signal) {
         signal,
     };
 
-    // if (method !== "GET" && csrfToken) {
-    //     option.headers["X-CSRF-Token"] = csrfToken;
-    // }
+    if (method !== "GET" && csrfToken) {
+        option.headers["X-CSRF-Token"] = csrfToken;
+    }
 
     if (data != undefined) {
         if (data instanceof FormData) {
@@ -92,14 +92,14 @@ export const api = {
     del,
 };
 
-// let csrfToken = undefined;
-// async function loadCsrfToken() {
-//     if (!csrfToken) {
-//         const res = await fetch(HOST + "/csrf-token", {
-//             credentials: "include",
-//         });
+let csrfToken = undefined;
+async function loadCsrfToken() {
+    if (!csrfToken) {
+        const res = await fetch(host + "/csrf-token", {
+            credentials: "include",
+        });
 
-//         const data = await res.json();
-//         csrfToken = data.csrfToken;
-//     }
-// }
+        const data = await res.json();
+        csrfToken = data.csrfToken;
+    }
+}
