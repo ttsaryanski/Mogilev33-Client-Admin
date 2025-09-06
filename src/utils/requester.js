@@ -10,16 +10,16 @@ export function setAccessToken(token) {
 async function requester(method, url, data, signal) {
     await loadCsrfToken();
 
-    if (accessToken) {
-        option.headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
     const option = {
         method,
         credentials: "include",
         headers: {},
         signal,
     };
+
+    if (accessToken) {
+        option.headers["Authorization"] = `Bearer ${accessToken}`;
+    }
 
     if (method !== "GET" && csrfToken) {
         option.headers["X-CSRF-Token"] = csrfToken;
