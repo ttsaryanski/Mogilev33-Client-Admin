@@ -14,25 +14,34 @@ export default function CreateDoc() {
     const [pending, setPending] = useState(false);
     const [title, setTitle] = useState("");
     const [date, setDate] = useState("");
-    const [fileUrl, setFileUrl] = useState("");
+    const [file, setFile] = useState(null);
+    const [fileName, setFileName] = useState("File Upload");
     const [errors, setErrors] = useState({
         title: "",
         date: "",
-        fileUrl: "",
+        file: "",
     });
 
     const submitHandler = async (e) => {
         e.preventDefault();
 
-        const payload = { title, date, fileUrl };
+        if (!file) {
+            setErrors((prev) => ({ ...prev, file: "Please select a file!" }));
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("date", date);
+        formData.append("file", file[0]);
 
         setPending(true);
         setError(null);
         try {
             if (type === "protocol") {
-                await protocolServices.createProtocol(payload);
+                await protocolServices.createProtocol(formData);
             } else if (type === "invite") {
-                await inviteServices.createInvite(payload);
+                await inviteServices.createInvite(formData);
             }
 
             navigate("/documents");
@@ -57,11 +66,15 @@ export default function CreateDoc() {
         return dateRegex.test(value) ? "" : "Invalid date format.";
     };
 
-    const validateFileUrl = (value) => {
-        const urlRegex = /^https?:\/\//;
-        return urlRegex.test(value)
-            ? ""
-            : "Please enter a valid file URL starting with http(s)://...";
+    const validateFile = (file) => {
+        if (!file) {
+            return "Please select a file!";
+        }
+        const allowedTypes = ["application/pdf"];
+        if (!allowedTypes.includes(file.type)) {
+            return "Only pdf formats are allowed.";
+        }
+        return "";
     };
 
     const titleChangeHandler = (e) => {
@@ -76,28 +89,39 @@ export default function CreateDoc() {
         setErrors((prev) => ({ ...prev, date: validateDate(value) }));
     };
 
-    const fileUrlChangeHandler = (e) => {
-        const value = e.target.value;
-        setFileUrl(value);
-        setErrors((prev) => ({
-            ...prev,
-            fileUrl: validateFileUrl(value),
-        }));
+    const fileChangeHandler = (e) => {
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            setFile(files);
+            setFileName(files[0].name);
+            setErrors((prev) => ({ ...prev, file: validateFile(files[0]) }));
+        } else {
+            setFile(null);
+            setFileName("File Upload");
+            setErrors((prev) => ({ ...prev, file: "Please select a file!" }));
+        }
     };
 
     const clearForm = () => {
         setTitle("");
         setDate("");
-        setFileUrl("");
+        setFile(null);
+        setFileName("File Upload");
+        setErrors({
+            title: "",
+            date: "",
+            file: "",
+        });
     };
 
     const isFormValid =
         !errors.title &&
         !errors.date &&
-        !errors.fileUrl &&
+        !errors.file &&
         title &&
         date &&
-        fileUrl;
+        file &&
+        file.length > 0;
 
     return (
         <section
@@ -182,19 +206,19 @@ export default function CreateDoc() {
                         </p>
                     )}
 
-                    <label className="label" htmlFor="fileUrl">
-                        FileUrl:
+                    <label className="label uploadfile" htmlFor="file">
+                        File Upload:
                     </label>
                     <input
                         className="input"
-                        type="text"
-                        name="fileUrl"
-                        id="fileUrl"
-                        value={fileUrl}
+                        type="file"
+                        name="file"
+                        id="file"
+                        accept=".pdf"
                         required
-                        onChange={fileUrlChangeHandler}
+                        onChange={fileChangeHandler}
                     />
-                    {errors.fileUrl && (
+                    {errors.file && (
                         <p
                             style={{
                                 color: "red",
@@ -202,7 +226,7 @@ export default function CreateDoc() {
                                 marginTop: 5,
                             }}
                         >
-                            {errors.fileUrl}
+                            {errors.file}
                         </p>
                     )}
 

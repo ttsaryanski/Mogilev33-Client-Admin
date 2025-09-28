@@ -2,6 +2,7 @@ import { api } from "../utils/requester.js";
 
 const endPoints = {
     getAll: "/protocols",
+    upload: "/protocols/upload",
 };
 
 async function getAllProtocols(signal) {
@@ -13,11 +14,11 @@ async function getProtocolById(id, signal) {
 }
 
 async function createProtocol(data) {
-    return await api.post(endPoints.getAll, data);
+    return await api.post(endPoints.upload, data);
 }
 
 async function editProtocolById(id, data) {
-    return await api.put(`${endPoints.getAll}/${id}`, data);
+    return await api.put(`${endPoints.upload}/${id}`, data);
 }
 
 async function deleteProtocolById(id) {

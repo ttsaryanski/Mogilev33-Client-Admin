@@ -2,6 +2,7 @@ import { api } from "../utils/requester.js";
 
 const endPoints = {
     getAll: "/offers",
+    upload: "/offers/upload",
 };
 
 async function getAllOffers(signal) {
@@ -13,11 +14,11 @@ async function getOfferById(id, signal) {
 }
 
 async function createOffer(data) {
-    return await api.post(endPoints.getAll, data);
+    return await api.post(endPoints.upload, data);
 }
 
 async function editOfferById(id, data) {
-    return await api.put(`${endPoints.getAll}/${id}`, data);
+    return await api.put(`${endPoints.upload}/${id}`, data);
 }
 
 async function deleteOfferById(id) {

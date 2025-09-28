@@ -15,11 +15,13 @@ export default function EditOffer() {
     const [company, setCompany] = useState("");
     const [price, setPrice] = useState(0);
     const [fileUrl, setFileUrl] = useState("");
+    const [file, setFile] = useState(null);
+    const [fileName, setFileName] = useState("File Upload");
     const [errors, setErrors] = useState({
         title: "",
         company: "",
         price: "",
-        fileUrl: "",
+        file: "",
     });
 
     useEffect(() => {
@@ -58,12 +60,21 @@ export default function EditOffer() {
     const submitHandler = async (e) => {
         e.preventDefault();
 
-        const payload = { title, company, price: Number(price), fileUrl };
+        if (!file) {
+            setErrors((prev) => ({ ...prev, file: "Please select a file!" }));
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("company", company);
+        formData.append("price", Number(price));
+        formData.append("file", file[0]);
 
         setPending(true);
         setError(null);
         try {
-            await offerServices.editOfferById(offerId, payload);
+            await offerServices.editOfferById(offerId, formData);
 
             navigate("/documents");
             clearForm();
@@ -95,11 +106,15 @@ export default function EditOffer() {
         return "";
     };
 
-    const validateFileUrl = (value) => {
-        const urlRegex = /^https?:\/\//;
-        return urlRegex.test(value)
-            ? ""
-            : "Please enter a valid file URL starting with http(s)://...";
+    const validateFile = (file) => {
+        if (!file) {
+            return "Please select a file!";
+        }
+        const allowedTypes = ["application/pdf"];
+        if (!allowedTypes.includes(file.type)) {
+            return "Only pdf formats are allowed.";
+        }
+        return "";
     };
 
     const titleChangeHandler = (e) => {
@@ -120,31 +135,43 @@ export default function EditOffer() {
         setErrors((prev) => ({ ...prev, price: validatePrice(value) }));
     };
 
-    const fileUrlChangeHandler = (e) => {
-        const value = e.target.value;
-        setFileUrl(value);
-        setErrors((prev) => ({
-            ...prev,
-            fileUrl: validateFileUrl(value),
-        }));
+    const fileChangeHandler = (e) => {
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            setFile(files);
+            setFileName(files[0].name);
+            setErrors((prev) => ({ ...prev, file: validateFile(files[0]) }));
+        } else {
+            setFile(null);
+            setFileName("File Upload");
+            setErrors((prev) => ({ ...prev, file: "Please select a file!" }));
+        }
     };
 
     const clearForm = () => {
         setTitle("");
         setCompany("");
         setPrice(0);
-        setFileUrl("");
+        setFile(null);
+        setFileName("File Upload");
+        setErrors({
+            title: "",
+            company: "",
+            price: "",
+            file: "",
+        });
     };
 
     const isFormValid =
         !errors.title &&
         !errors.company &&
         !errors.price &&
-        !errors.fileUrl &&
+        !errors.file &&
         title &&
         company &&
-        price &&
-        fileUrl;
+        price >= 0 &&
+        file &&
+        file.length > 0;
 
     return (
         <section
@@ -236,10 +263,22 @@ export default function EditOffer() {
                         name="fileUrl"
                         id="fileUrl"
                         value={fileUrl}
-                        required
-                        onChange={fileUrlChangeHandler}
+                        readOnly
                     />
-                    {errors.fileUrl && (
+
+                    <label className="label uploadfile" htmlFor="file">
+                        File Upload:
+                    </label>
+                    <input
+                        className="input"
+                        type="file"
+                        name="file"
+                        id="file"
+                        accept=".pdf"
+                        required
+                        onChange={fileChangeHandler}
+                    />
+                    {errors.file && (
                         <p
                             style={{
                                 color: "red",
@@ -247,7 +286,7 @@ export default function EditOffer() {
                                 marginTop: 5,
                             }}
                         >
-                            {errors.fileUrl}
+                            {errors.file}
                         </p>
                     )}
 
